@@ -2,129 +2,166 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>launcher</title>
-    <link rel="stylesheet" href="css/style.css">
+    <meta name="referrer" content="no-referrer">
+    <link rel="icon" href="data:,">
+    <title>Kira启动器 · 新UI原型</title>
+        <link rel="stylesheet" href="css/ui-demo.css">
 </head>
-<body oncontextmenu="return false;" onkeydown="return (event.keyCode !== 123);">
+<body oncontextmenu="return false;">
 
+    <!-- 背景层（视频/图片） -->
+    <div class="bg-layer" id="bgLayer"></div>
+    <video class="bg-video" id="bgVideo" autoplay muted loop playsinline referrerpolicy="no-referrer"></video>
+
+    <!-- 全局悬浮提示 -->
+    <div class="game-tooltip" id="gameTooltip"></div>
+
+    <!-- C++ 消息提示 -->
+    <div class="inject-dialog-overlay" id="cppMsgBox">
+        <div class="inject-dialog" style="width:320px;">
+            <div class="inject-dialog-title" id="cppMsgTitle">提示</div>
+            <div class="inject-dialog-sub" id="cppMsgText"></div>
+            <div style="display:flex;gap:8px;margin-top:14px;">
+                <button class="add-btn add-btn-primary" id="cppMsgOk">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设置弹窗（紧凑，同原版风格） -->
+    <div class="inject-dialog-overlay" id="settingsDialog">
+        <div class="inject-dialog" style="width:440px;padding:0;overflow:hidden;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.08);">
+                <div style="font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px;" id="settingsTitle">设置</div>
+                <button class="add-btn" id="settingsClose" style="padding:4px 10px;font-size:12px;flex:0 0 auto;white-space:nowrap;">✕</button>
+            </div>
+            <div style="padding:16px 20px;">
+                <div id="launchParamsSection">
+                    <label style="font-size:13px;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:6px;margin-bottom:8px;">🚀 启动参数</label>
+                    <input id="launchParamsInput" class="add-input" placeholder="输入额外启动参数">
+                    <div style="height:14px;"></div>
+                </div>
+                <label style="font-size:13px;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:6px;margin-bottom:8px;" id="settingsSub">背景链接</label>
+                <div style="display:flex;gap:8px;">
+                    <input id="bgUrlInput" class="add-input" placeholder="视频/图片 URL（http/https/file:///）">
+                    <button class="add-btn add-btn-primary" id="bgUrlApply" style="flex-shrink:0;padding:0 14px;white-space:nowrap;">预览</button>
+                    <button class="add-btn" id="settingsBgReset" style="flex-shrink:0;padding:0 12px;white-space:nowrap;">重置背景</button>
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;padding:12px 20px;border-top:1px solid rgba(255,255,255,0.08);">
+                <button class="add-btn" id="settingsCancel" style="flex:1;">取消</button>
+                <button class="add-btn add-btn-primary" id="settingsDone" style="flex:1;">保存设置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除游戏确认弹窗 -->
+    <div class="inject-dialog-overlay" id="deleteConfirmDialog">
+        <div class="inject-dialog" style="width:280px;">
+            <div class="inject-dialog-title">删除游戏</div>
+            <div class="inject-dialog-sub" id="deleteConfirmName"></div>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+                <button class="add-btn" id="deleteCancel">取消</button>
+                <button class="add-btn add-btn-primary" id="deleteConfirm" style="background:linear-gradient(135deg,#ff6464,#e53935);border-color:rgba(255,100,100,0.5);">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加游戏弹窗 -->
+    <div class="inject-dialog-overlay" id="addGameDialog">
+        <div class="inject-dialog" style="width:300px;">
+            <div class="inject-dialog-title">添加游戏</div>
+            <div class="inject-dialog-sub">填入游戏信息后点确定</div>
+            <div style="margin-bottom:10px;">
+                <input id="addName" class="add-input" placeholder="游戏名称（如 原神）">
+            </div>
+            <div style="margin-bottom:10px;">
+                <input id="addProcess" class="add-input" placeholder="进程名（如 YuanShen.exe）">
+            </div>
+            <div style="margin-bottom:10px;">
+                <input id="addPath" class="add-input" readonly placeholder="路径：点下方浏览选择">
+            </div>
+            <button class="add-btn add-btn-primary" id="addBrowse" style="margin-bottom:14px;">📁 浏览选择游戏 exe</button>
+            <div style="display:flex;gap:8px;">
+                <button class="add-btn" id="addCancel">取消</button>
+                <button class="add-btn add-btn-primary" id="addConfirm">确定添加</button>
+            </div>
+            <input type="file" id="filePicker" accept=".exe" style="display:none;">
+        </div>
+    </div>
+
+    <!-- 注入类型选择小弹窗 -->
+    <div class="inject-dialog-overlay" id="injectDialog">
+        <div class="inject-dialog">
+            <div class="inject-dialog-title">选择注入类型</div>
+            <div class="inject-dialog-sub" id="injectDialogSub"></div>
+            <div class="inject-dialog-option active" data-inject="劫持">
+                <span>🔗 劫持</span>
+                <span class="opt-check">✔</span>
+            </div>
+            <div class="inject-dialog-option" data-inject="线程">
+                <span>🧵 线程</span>
+                <span class="opt-check">✔</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗菜单容器（JS 填充） -->
+    <div class="popup-menu" id="popupMenu" style="display:none;"></div>
+
+    <!-- 顶栏：窗口控制按钮（不变） -->
     <div class="top-bar" id="标题栏">
-        <div class="窗口控制按钮组" id="窗口控制按钮组">
-<button class="窗口按钮 设置" id="设置按钮" title="设置">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
-        <circle cx="12" cy="12" r="3"/>
-    </svg>
-</button>
-            <button class="窗口按钮 最小化" id="最小化按钮" title="最小化">
-                <i class="ri-subtract-line"></i>
+        <div class="窗口控制按钮组">
+            <button class="窗口按钮 设置" id="设置按钮" title="设置">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
             </button>
-            <button class="窗口按钮 最大化" id="最大化按钮" title="最大化">
-                <i class="ri-checkbox-multiple-blank-line"></i>
-            </button>
-            <button class="窗口按钮 关闭" id="关闭按钮" title="关闭">
-                <i class="ri-close-line"></i>
-            </button>
+            <button class="窗口按钮 最小化" id="最小化按钮" title="最小化"><i></i></button>
+            <button class="窗口按钮 最大化" id="最大化按钮" title="最大化"><i></i></button>
+            <button class="窗口按钮 关闭" id="关闭按钮" title="关闭"><i></i></button>
         </div>
     </div>
 
-    <div class="genshin-container">
-        <div class="info-tags" id="info-tags">
-            <div class="info-tag info-tag-tag"><span class="tag-label">版本:</span><span class="tag-value" id="tag-tag"></span></div>
-            <div class="info-tag info-tag-body"><span class="tag-label">公告:</span><span class="tag-value" id="tag-body"></span></div>
-            <div class="info-tag info-tag-date"><span class="tag-label">更新日期:</span><span class="tag-value" id="tag-created"></span></div>
+    <div class="app-body">
+        <!-- 左侧 70px 图标菜单 -->
+        <div class="side-bar">
+            <!-- 游戏图标列表（贴底部） -->
+            <div class="game-icon-list" id="gameIconList">
+                <!-- JS 动态生成 -->
+            </div>
+
+            <!-- 添加游戏按钮（最底部） -->
+            <button class="add-game-btn" id="addGameBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+            </button>
         </div>
 
-        <div class="userinfo-panel" id="userinfo-panel">
-            <div class="userinfo-header">
-                <div class="userinfo-avatar">
-                    <i class="ri-user-3-fill"></i>
-                </div>
-                <div class="userinfo-title">
-                    <div class="userinfo-name" id="userinfo-user">未登录</div>
-                    <div class="userinfo-group" id="userinfo-group"></div>
-                </div>
+        <!-- 右侧内容区 -->
+        <div class="main-panel">
+            <div class="game-tabs" id="gameTabs">
+                <!-- JS 动态生成 -->
             </div>
-            <div class="userinfo-body">
-                <div class="userinfo-item">
-                    <!--<i class="ri-shield-keyhole-line"></i>-->
-                    <span class="userinfo-label">心跳ID</span>
-                    <span class="userinfo-value" id="userinfo-tokenid">-</span>
-                </div>
-                <div class="userinfo-item">
-                    <!--<i class="ri-computer-line"></i>-->
-                    <span class="userinfo-label">客户端ID</span>
-                    <span class="userinfo-value" id="userinfo-clientid">-</span>
-                </div>
-                <div class="userinfo-item">
-                   <!-- <i class="ri-time-line"></i> -->
-                    <span class="userinfo-label">过期时间</span>
-                    <span class="userinfo-value" id="userinfo-endtime">-</span>
-                </div>
-                <div class="userinfo-item">
-                   <!-- <i class="ri-coin-line"></i> -->
-                    <span class="userinfo-label">点数</span>
-                    <span class="userinfo-value" id="userinfo-point">-</span>
-                </div>
-                <div class="userinfo-item">
-                   <!-- <i class="ri-star-line"></i> -->
-                    <span class="userinfo-label">积分</span>
-                    <span class="userinfo-value" id="userinfo-integral">-</span>
-                </div>
-                <div class="userinfo-item">
-                    <!--<i class="ri-mac-line"></i> -->
-                    <span class="userinfo-label">设备码</span>
-                    <span class="userinfo-value" id="userinfo-mac">-</span>
-                </div>
-                <div class="userinfo-item">
-                    <!--<i class="ri-global-line"></i> -->
-                    <span class="userinfo-label">IP地址</span>
-                    <span class="userinfo-value" id="userinfo-ip">-</span>
-                </div>
-                <div class="userinfo-item">
-                    <!--<i class="ri-window-line"></i> -->
-                    <span class="userinfo-label">多开</span>
-                    <span class="userinfo-value" id="userinfo-dk">-</span>
-                </div>
-                <div class="userinfo-item">
-                    <!--<i class="ri-mail-line"></i> -->
-                    <span class="userinfo-label">邮箱</span>
-                    <span class="userinfo-value" id="userinfo-email">-</span>
-                </div>
-                <div class="userinfo-item">
-                    <!--<i class="ri-qq-line"></i> -->
-                    <span class="userinfo-label">QQ</span>
-                    <span class="userinfo-value" id="userinfo-userqq">-</span>
-                </div>
-                <div class="userinfo-item">
-                    <!--<i class="ri-calendar-add-line"></i> -->
-                    <span class="userinfo-label">注册时间</span>
-                    <span class="userinfo-value" id="userinfo-addtime">-</span>
-                </div>
-                <div class="userinfo-item">
-                    <!--<i class="ri-login-circle-line"></i> -->
-                    <span class="userinfo-label">登录时间</span>
-                    <span class="userinfo-value" id="userinfo-logintime">-</span>
-                </div>
-            </div>
-        </div>
 
-        <div class="bottom-section">
-<button class="start-game-btn">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-        <polygon points="5,3 19,12 5,21"/>
-    </svg>
-    <span>开始游戏</span>
-</button>
-            <div class="menu-btn">
-                <div class="menu-icon">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+            <!-- 底部控制按钮（不变） -->
+            <div class="bottom-section">
+                <button class="start-game-btn" id="startBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="5,3 19,12 5,21"/>
+                    </svg>
+                    <span>开始游戏</span>
+                </button>
+                <div class="menu-btn" id="menuBtn">
+                    <div class="menu-icon">
+                        <span></span><span></span><span></span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="js/bundle.js"></script>
+        <script src="js/ui-demo.js"></script>
 </body>
 </html>

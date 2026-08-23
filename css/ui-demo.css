@@ -1,0 +1,706 @@
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+            outline: none;
+        }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        body {
+            font-family: "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1a3a5c 40%, #0d2137 100%);
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== 顶栏（保持原样） ===== */
+        .top-bar {
+            width: 100%;
+            height: 32px;
+            position: relative;
+            -webkit-app-region: drag;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 1px;
+            z-index: 100000;
+            flex-shrink: 0;
+        }
+        .窗口控制按钮组 {
+            display: flex;
+            -webkit-app-region: no-drag;
+            align-items: center;
+            height: 100%;
+            gap: 4px;
+        }
+        .窗口按钮 {
+            width: 30px;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.9);
+            border-radius: 4px;
+        }
+        .窗口按钮:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+        .窗口按钮.关闭:hover {
+            background: #e81123;
+            color: white;
+        }
+        /* 纯 CSS 图标 */
+        .窗口按钮 {
+            font-size: 0;
+        }
+        .窗口按钮.设置 i {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            position: relative;
+            border: 2px solid currentColor;
+            border-radius: 50%;
+        }
+        .窗口按钮.设置 i::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 5px;
+            height: 5px;
+            background: currentColor;
+            border-radius: 50%;
+        }
+        .窗口按钮.设置 i::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
+            width: 8px;
+            height: 8px;
+            border: 2px solid currentColor;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+        .窗口按钮.最小化 i {
+            display: inline-block;
+            width: 14px;
+            height: 2px;
+            background: currentColor;
+            border-radius: 1px;
+        }
+        .窗口按钮.最大化 i {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid currentColor;
+            border-radius: 2px;
+        }
+        .窗口按钮.关闭 i {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            position: relative;
+        }
+        .窗口按钮.关闭 i::before,
+        .窗口按钮.关闭 i::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 14px;
+            height: 2px;
+            background: currentColor;
+            border-radius: 1px;
+        }
+        .窗口按钮.关闭 i::before {
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+        .窗口按钮.关闭 i::after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+
+        /* ===== 主布局：左侧 70px 菜单 + 右侧内容 ===== */
+        .app-body {
+            flex: 1;
+            display: flex;
+            min-height: 0;
+            position: relative;
+        }
+
+        /* 左侧图标栏 */
+        .side-bar {
+            width: 70px;
+            flex-shrink: 0;
+            background: rgba(8, 16, 30, 0.55);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 0 10px;
+            z-index: 50;
+        }
+        .side-bar .logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 14px rgba(255, 200, 0, 0.35);
+            flex-shrink: 0;
+        }
+        .game-icon-list {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            overflow-y: auto;
+            justify-content: flex-end;
+            padding: 4px 0;
+        }
+        .game-icon-list::-webkit-scrollbar {
+            width: 3px;
+        }
+        .game-icon-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 2px;
+        }
+
+        /* 添加游戏按钮（最底部） */
+        .add-game-btn {
+            width: 46px;
+            height: 46px;
+            flex-shrink: 0;
+            border-radius: 12px;
+            border: 1px dashed rgba(255, 255, 255, 0.28);
+            background: rgba(255, 255, 255, 0.04);
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+        .add-game-btn:hover {
+            border-color: #ffd700;
+            color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+            transform: translateY(-1px);
+        }
+        .add-game-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* 添加游戏弹窗输入 */
+        .add-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+        .add-input:focus {
+            border-color: rgba(135, 206, 235, 0.6);
+        }
+        .add-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+        .add-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .add-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .add-btn-primary {
+            background: linear-gradient(135deg, #87ceeb, #6495ed);
+            border-color: rgba(135, 206, 235, 0.5);
+            color: #fff;
+            font-weight: 600;
+        }
+        .add-btn-primary:hover {
+            background: linear-gradient(135deg, #87ceeb, #6495ed);
+            filter: brightness(1.08);
+        }
+        .add-btn.active {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.15);
+            color: #ffd700;
+        }
+
+        /* ===== 背景层（视频/图片） ===== */
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            pointer-events: none;
+        }
+        .bg-video {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .app-body {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== 设置弹窗（背景设置） ===== */
+        .settings-bg-preview {
+            width: 100%;
+            height: 90px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 13px;
+        }
+
+        /* 单个游戏图标按钮 */
+        .game-icon-btn {
+            position: relative;
+            width: 46px;
+            height: 46px;
+            flex-shrink: 0;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.06);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .game-icon-btn .icon-fallback {
+            pointer-events: none;
+        }
+        .game-icon-btn img {
+            pointer-events: none;
+        }
+        .game-icon-btn:hover {
+            border-color: rgba(135, 206, 235, 0.6);
+            background: rgba(135, 206, 235, 0.12);
+            transform: translateY(-1px);
+        }
+        .game-icon-btn.active {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.12);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+        }
+        /* 激活时的左侧金色指示条 */
+        .game-icon-btn.active::before {
+            content: '';
+            position: absolute;
+            left: -1px;
+            top: 25%;
+            height: 50%;
+            width: 3px;
+            border-radius: 2px;
+            background: linear-gradient(180deg, #ffd700, #ffa500);
+        }
+        .game-icon-btn img {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            pointer-events: none;
+        }
+        .game-icon-btn .icon-fallback {
+            font-size: 20px;
+            pointer-events: none;
+        }
+
+        /* 全局悬浮提示（fixed 定位，不受列表 overflow 裁剪） */
+        .game-tooltip {
+            position: fixed;
+            background: rgba(15, 25, 45, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 12px;
+            color: #fff;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            z-index: 99999;
+            transform: translateY(-50%);
+        }
+        .game-tooltip.show {
+            opacity: 1;
+        }
+        .game-tooltip::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
+            width: 8px;
+            height: 8px;
+            background: rgba(15, 25, 45, 0.95);
+            border-left: 1px solid rgba(255, 255, 255, 0.15);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* ===== 弹窗菜单（含注入类型） ===== */
+        .popup-menu {
+            position: fixed;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 8px;
+            min-width: 180px;
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+        .popup-menu-title {
+            padding: 8px 14px 4px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 1px;
+        }
+        .popup-menu-item {
+            padding: 10px 20px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+        .popup-menu-item:hover {
+            background: rgba(135, 206, 235, 0.2);
+            color: #ffffff;
+        }
+        .popup-menu-item .menu-check {
+            color: #87ceeb;
+            font-size: 13px;
+            visibility: hidden;
+        }
+        .popup-menu-item.active .menu-check {
+            visibility: visible;
+        }
+        .popup-menu-item.active {
+            color: #87ceeb;
+        }
+        .popup-menu-sep {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+            margin: 6px 10px;
+        }
+
+        /* ===== 注入类型选择小弹窗 ===== */
+        .inject-dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(3px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .inject-dialog-overlay.show {
+            display: flex;
+        }
+        .inject-dialog {
+            width: 260px;
+            background: rgba(20, 28, 46, 0.97);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            padding: 18px;
+            animation: fadeInUp 0.2s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .inject-dialog-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        .inject-dialog-sub {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            text-align: center;
+            margin-bottom: 14px;
+        }
+        .inject-dialog-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.04);
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: all 0.15s;
+        }
+        .inject-dialog-option:last-child {
+            margin-bottom: 0;
+        }
+        .inject-dialog-option:hover {
+            border-color: rgba(135, 206, 235, 0.5);
+            background: rgba(135, 206, 235, 0.08);
+        }
+        .inject-dialog-option.active {
+            border-color: #87ceeb;
+            background: rgba(135, 206, 235, 0.16);
+            color: #87ceeb;
+        }
+        .inject-dialog-option .opt-check {
+            color: #87ceeb;
+            visibility: hidden;
+        }
+        .inject-dialog-option.active .opt-check {
+            visibility: visible;
+        }
+        .inject-dialog-option .opt-desc {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        /* ===== 右侧内容区 ===== */
+        .main-panel {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        /* 背景装饰 */
+        .main-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 70% 20%, rgba(100, 149, 237, 0.15), transparent 50%),
+                radial-gradient(ellipse at 20% 80%, rgba(255, 215, 0, 0.08), transparent 45%);
+            pointer-events: none;
+        }
+
+        .game-tabs {
+            position: relative;
+            flex: 1;
+        }
+        .game-tab {
+            position: absolute;
+            inset: 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            padding: 30px;
+        }
+        .game-tab.active {
+            display: flex;
+            animation: fadeIn 0.25s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-tab .big-icon {
+            width: 96px;
+            height: 96px;
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 44px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+        }
+        .game-tab .game-name {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .game-tab .game-desc {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .game-tab .game-path {
+            max-width: 520px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 8px 14px;
+            border-radius: 8px;
+            word-break: break-all;
+            text-align: center;
+        }
+        .game-tab .inject-picker {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+        }
+        .inject-option {
+            padding: 10px 22px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .inject-option:hover {
+            border-color: rgba(135, 206, 235, 0.5);
+        }
+        .inject-option.active {
+            border-color: #87ceeb;
+            background: rgba(135, 206, 235, 0.16);
+            color: #87ceeb;
+        }
+
+        /* 底部控制（保持原样） */
+        .bottom-section {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 16px;
+            padding: 0 30px 30px 0;
+            z-index: 10;
+        }
+        .start-game-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 48px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffb700 50%, #ffa500 100%);
+            border: none;
+            border-radius: 28px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+        .start-game-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.5);
+            filter: brightness(1.05);
+        }
+        .start-game-btn:active {
+            transform: translateY(-1px) scale(0.98);
+            filter: brightness(0.95);
+        }
+        .start-game-btn:disabled {
+            cursor: not-allowed;
+            filter: brightness(0.8) saturate(0.8);
+        }
+        .menu-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .menu-btn:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+        .menu-icon {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .menu-icon span {
+            width: 16px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 1px;
+        }
+        .menu-btn:hover .menu-icon span {
+            background: #ffffff;
+        }
+
+        .spin-icon {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    
