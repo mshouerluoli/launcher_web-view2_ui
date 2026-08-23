@@ -234,6 +234,9 @@
                     <span>注入类型</span>
                     <span style="color:#87ceeb;">${cur} ›</span>
                 </div>
+                <div class="popup-menu-item" data-action="pluginDir">
+                    <span>📂 插件目录</span>
+                </div>
                 <div class="popup-menu-sep"></div>
                 <div class="popup-menu-item" data-action="设置"><span>设置</span></div>
             `;
@@ -241,6 +244,11 @@
             popupMenu.querySelector('.popup-menu-item[data-action="inject"]').addEventListener('click', (e) => {
                 e.stopPropagation();
                 showInjectDialog();
+            });
+            popupMenu.querySelector('.popup-menu-item[data-action="pluginDir"]').addEventListener('click', (e) => {
+                e.stopPropagation();
+                popupMenu.style.display = 'none';
+                sendToCpp({ cmd: 'openPluginDir', game: currentGameId });
             });
             popupMenu.querySelector('.popup-menu-item[data-action="设置"]').addEventListener('click', () => {
                 popupMenu.style.display = 'none';
