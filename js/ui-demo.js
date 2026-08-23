@@ -45,6 +45,11 @@
         GAMES.forEach(g => injectTypes[g.id] = '劫持');
 
         let currentGameId = GAMES[0].id;
+        // 恢复上次选中的游戏（localStorage 记忆，首次启动为第一个）
+        {
+            const savedSel = readSettings().selectedGame;
+            if (savedSel && GAMES.some(x => x.id === savedSel)) currentGameId = savedSel;
+        }
         let cppConnected = false; // 是否收到过 C++ 的 gameList
 
         // ==================== C++ 消息通信 ====================
@@ -61,6 +66,8 @@
         // 用 C++ 下发的游戏列表重建数据
         function applyGameList(list) {
             cppConnected = true;
+            const prevId = currentGameId;
+            const savedSel = readSettings().selectedGame;
             GAMES.length = 0;
             list.forEach(g => {
                 GAMES.push({
@@ -76,7 +83,11 @@
             });
             injectTypes = {};
             GAMES.forEach(g => injectTypes[g.id] = g.injectType);
-            currentGameId = GAMES.length ? GAMES[0].id : null;
+            // 恢复选中：上次选中的还在列表里 → 沿用；否则用本地记忆；再兜底第一个
+            currentGameId = null;
+            if (prevId && GAMES.some(x => x.id === prevId)) currentGameId = prevId;
+            else if (savedSel && GAMES.some(x => x.id === savedSel)) currentGameId = savedSel;
+            if (!currentGameId) currentGameId = GAMES.length ? GAMES[0].id : null;
             renderGameList();
             renderTabs();
             refreshBg();
@@ -210,6 +221,9 @@
                 return;
             }
             currentGameId = id;
+            // 记忆选中的游戏，下次启动/打开设置仍停留在此游戏
+            const s = readSettings();
+            if (s.selectedGame !== id) { s.selectedGame = id; writeSettings(s); }
 
             document.querySelectorAll('.game-icon-btn').forEach(b =>
                 b.classList.toggle('active', b.dataset.id === id));
