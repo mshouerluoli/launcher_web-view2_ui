@@ -293,34 +293,70 @@
         const injectDialog = document.getElementById('injectDialog');
         const injectDialogSub = document.getElementById('injectDialogSub');
         const injectDialogTip = document.getElementById('injectDialogTip');
+        let pendingInject = '劫持'; // 弹窗内待保存的选中类型（点保存才写入 injectTypes）
 
         // 注入类型提示（劫持需要说明劫持名/改名，线程不用）
         // 注意：两种提示必须等行数，否则悬停切换时弹窗高度变化会来回抖动
         function injectTipHtml(type) {
             const dllName = `${currentGameId}.dll`;
+            const dllRow = `<span class="dll-row"><code class="dll-name">${dllName}</code><button class="copy-dll" data-dll="${dllName}" type="button">复制</button></span>`;
             if (type === '线程') {
                 return `<span class="tip-title">🧵 线程注入</span>无劫持名（不用 version.dll）
-① DLL 放插件目录，命名为 ${dllName}
+① DLL 放插件目录，命名为
+${dllRow}
 ② 点开始游戏，直接注入
 ③ 不用复制成 version.dll`;
             }
             return `<span class="tip-title">🔗 劫持注入</span>劫持名：<b>version.dll</b>（游戏目录里加载）
-① DLL 放插件目录，命名为 ${dllName}
+① DLL 放插件目录，命名为
+${dllRow}
 ② 启动时自动复制为游戏目录 version.dll
 ③ 游戏加载后注入完成`;
         }
 
         function updateInjectTip(type) {
             injectDialogTip.innerHTML = injectTipHtml(type);
+            injectDialogTip.querySelectorAll('.copy-dll').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    copyDllName(btn.dataset.dll, btn);
+                });
+            });
+        }
+
+        function copyDllName(dllName, btn) {
+            const done = () => {
+                const old = btn.textContent;
+                btn.textContent = '已复制';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = old; btn.classList.remove('copied'); }, 1200);
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(dllName).then(done).catch(() => fallbackCopy(dllName, done));
+            } else {
+                fallbackCopy(dllName, done);
+            }
+        }
+
+        function fallbackCopy(text, done) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); } catch (e) {}
+            document.body.removeChild(ta);
+            done();
         }
 
         function showInjectDialog() {
             const g = GAMES.find(x => x.id === currentGameId);
-            const cur = injectTypes[currentGameId];
-            injectDialogSub.textContent = `${g.name} · 当前：${cur}`;
+            pendingInject = injectTypes[currentGameId];
+            injectDialogSub.textContent = `${g.name} · 当前：${pendingInject}`;
             injectDialog.querySelectorAll('.inject-dialog-option').forEach(o =>
-                o.classList.toggle('active', o.dataset.inject === cur));
-            updateInjectTip(cur);
+                o.classList.toggle('active', o.dataset.inject === pendingInject));
+            updateInjectTip(pendingInject);
             injectDialog.classList.add('show');
         }
         function hideInjectDialog() {
@@ -329,18 +365,27 @@
 
         injectDialog.querySelectorAll('.inject-dialog-option').forEach(opt => {
             opt.addEventListener('click', () => {
-                injectTypes[currentGameId] = opt.dataset.inject;
-                hideInjectDialog();
-                renderPopupMenu(); // 刷新菜单里的当前值
-                // 同步右侧 tab 的选中态
-                const tab = document.querySelector(`.game-tab[data-id="${currentGameId}"]`);
-                tab.querySelectorAll('.inject-option').forEach(o =>
-                    o.classList.toggle('active', o.dataset.inject === opt.dataset.inject));
-                console.log('send:', { cmd: 'componentEvent', action: 'selectInjectType', injectType: opt.dataset.inject === '线程' ? 'thread' : 'hijack', game: currentGameId });
-                sendToCpp({ cmd: 'componentEvent', action: 'selectInjectType', injectType: opt.dataset.inject === '线程' ? 'thread' : 'hijack', game: currentGameId });
+                // 只高亮选中，不保存、不关闭弹窗（由下方“保存”按钮统一生效）
+                pendingInject = opt.dataset.inject;
+                injectDialog.querySelectorAll('.inject-dialog-option').forEach(o =>
+                    o.classList.toggle('active', o.dataset.inject === pendingInject));
+                injectDialogSub.textContent = `${GAMES.find(x => x.id === currentGameId).name} · 当前：${pendingInject}`;
+                updateInjectTip(pendingInject);
             });
             // 悬停预览对应说明
             opt.addEventListener('mouseenter', () => updateInjectTip(opt.dataset.inject));
+        });
+        document.getElementById('injectSave').addEventListener('click', () => {
+            const chosen = pendingInject;
+            injectTypes[currentGameId] = chosen;
+            hideInjectDialog();
+            renderPopupMenu(); // 刷新菜单里的当前值
+            // 同步右侧 tab 的选中态
+            const tab = document.querySelector(`.game-tab[data-id="${currentGameId}"]`);
+            tab.querySelectorAll('.inject-option').forEach(o =>
+                o.classList.toggle('active', o.dataset.inject === chosen));
+            console.log('send:', { cmd: 'componentEvent', action: 'selectInjectType', injectType: chosen === '线程' ? 'thread' : 'hijack', game: currentGameId });
+            sendToCpp({ cmd: 'componentEvent', action: 'selectInjectType', injectType: chosen === '线程' ? 'thread' : 'hijack', game: currentGameId });
         });
         injectDialog.addEventListener('click', (e) => {
             if (e.target === injectDialog) hideInjectDialog();

@@ -561,6 +561,61 @@
             display: block;
             margin-bottom: 2px;
         }
+        .inject-dialog-tip .dll-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 3px 0;
+        }
+        .inject-dialog-tip .dll-name {
+            flex: 1;
+            min-width: 0;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 5px;
+            padding: 3px 6px;
+            font-family: Consolas, Monaco, monospace;
+            font-size: 10px;
+            color: #cdd9f0;
+            line-height: 1.45;
+            word-break: break-all;
+        }
+        .inject-dialog-tip .copy-dll {
+            flex: none;
+            background: rgba(135, 206, 235, 0.14);
+            border: 1px solid rgba(135, 206, 235, 0.35);
+            color: #87ceeb;
+            border-radius: 5px;
+            padding: 3px 8px;
+            font-size: 10px;
+            line-height: 1.45;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .inject-dialog-tip .copy-dll:hover {
+            background: rgba(135, 206, 235, 0.25);
+        }
+        .inject-dialog-tip .copy-dll.copied {
+            background: rgba(80, 220, 120, 0.18);
+            border-color: rgba(80, 220, 120, 0.4);
+            color: #5fd68a;
+        }
+        .inject-dialog .inject-save {
+            width: 100%;
+            margin-top: 14px;
+            padding: 11px;
+            background: linear-gradient(135deg, #87ceeb, #6495ed);
+            border: 1px solid rgba(135, 206, 235, 0.5);
+            border-radius: 9px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .inject-dialog .inject-save:hover {
+            filter: brightness(1.08);
+        }
 
         /* ===== 右侧内容区 ===== */
         .main-panel {
