@@ -372,8 +372,6 @@ ${dllRow}
                 injectDialogSub.textContent = `${GAMES.find(x => x.id === currentGameId).name} · 当前：${pendingInject}`;
                 updateInjectTip(pendingInject);
             });
-            // 悬停预览对应说明
-            opt.addEventListener('mouseenter', () => updateInjectTip(opt.dataset.inject));
         });
         document.getElementById('injectSave').addEventListener('click', () => {
             const chosen = pendingInject;
