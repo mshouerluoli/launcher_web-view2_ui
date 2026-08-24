@@ -299,10 +299,8 @@
         function injectTipHtml(type) {
             const dllName = `${currentGameId}.dll`;
             if (type === '线程') {
-                return `<span class="tip-title">🧵 线程注入</span>无需劫持名，也不用改名。
-① DLL 放插件目录：${dllName}
-② 点开始游戏直接注入
-③ 不用改任何文件名`;
+                return `<span class="tip-title">🧵 线程注入</span>① DLL 放插件目录：${dllName}
+② 点开始游戏直接注入`;
             }
             return `<span class="tip-title">🔗 劫持注入</span>劫持名：<b>version.dll</b>（游戏目录里加载）
 ① DLL 放插件目录：${dllName}
