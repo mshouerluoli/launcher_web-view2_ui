@@ -33,6 +33,23 @@
             z-index: 100000;
             flex-shrink: 0;
         }
+        /* 左上角品牌区：只留 logo（无标题，参考图样式） */
+        .title-brand {
+            display: flex;
+            align-items: center;
+            margin-right: auto;
+            -webkit-app-region: drag;
+            padding-left: 12px;
+            align-self: flex-start;
+        }
+        .title-logo {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            border-radius: 50%;
+            -webkit-app-region: no-drag;
+            margin-top: 20px;
+        }
         .窗口控制按钮组 {
             display: flex;
             -webkit-app-region: no-drag;
@@ -153,6 +170,7 @@
             align-items: center;
             margin-top: -32px;
             padding: 44px 0 10px;
+            justify-content: flex-end;
             z-index: 50;
         }
         .side-bar .logo {
@@ -171,14 +189,13 @@
             flex-shrink: 0;
         }
         .game-icon-list {
-            flex: 1;
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
             overflow-y: auto;
-            justify-content: flex-end;
+            justify-content: flex-start;
             padding: 4px 0;
         }
         .game-icon-list::-webkit-scrollbar {
@@ -194,6 +211,7 @@
             width: 46px;
             height: 46px;
             flex-shrink: 0;
+            margin-top: 10px;
             border-radius: 12px;
             border: 1px dashed rgba(255, 255, 255, 0.28);
             background: rgba(255, 255, 255, 0.04);

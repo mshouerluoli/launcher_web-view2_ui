@@ -198,6 +198,23 @@
                 btn.addEventListener('click', () => switchGame(g.id));
                 iconList.appendChild(btn);
             });
+            applyGameListMaxHeight();
+        }
+
+        // 游戏图标显示数量限制：可见容器高 = 侧栏高度/2 + 一个图标高度，算出能放 N 个，超出滚轮滚动
+        function applyGameListMaxHeight() {
+            const list = document.getElementById('gameIconList');
+            if (!list) return;
+            const firstBtn = list.querySelector('.game-icon-btn');
+            const iconH = firstBtn ? firstBtn.offsetHeight : 46;   // 每个图标高度
+            const gap = 10;                                        // 图标间距
+            const sb = document.querySelector('.side-bar');
+            const H = sb ? sb.clientHeight : window.innerHeight;   // 侧栏高度
+            const half = H / 2 + iconH;                            // 半侧栏 + 一个图标
+            let N = Math.floor(half / iconH);                      // 能放多少个
+            if (N < 1) N = 1;
+            list.style.maxHeight = (N * (iconH + gap) - gap) + 'px';
+            list.style.overflowY = 'auto';
         }
 
         // ==================== 渲染右侧 tab ====================
@@ -769,4 +786,7 @@
         // 初始化渲染
         renderGameList();
         renderTabs();
+
+        // 窗口尺寸变化时重新计算游戏图标显示数量上限
+        window.addEventListener('resize', applyGameListMaxHeight);
     
