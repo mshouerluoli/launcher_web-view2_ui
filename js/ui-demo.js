@@ -249,7 +249,7 @@
                     <span style="color:#87ceeb;">${cur} ›</span>
                 </div>
                 <div class="popup-menu-item" data-action="pluginDir">
-                    <span>📂 插件目录</span>
+                    <span>插件目录</span>
                 </div>
                 <div class="popup-menu-sep"></div>
                 <div class="popup-menu-item" data-action="设置"><span>设置</span></div>
@@ -275,6 +275,27 @@
         // ==================== 注入类型选择小弹窗 ====================
         const injectDialog = document.getElementById('injectDialog');
         const injectDialogSub = document.getElementById('injectDialogSub');
+        const injectDialogTip = document.getElementById('injectDialogTip');
+
+        // 注入类型提示（劫持需要说明劫持名/改名，线程不用）
+        // 注意：两种提示必须等行数，否则悬停切换时弹窗高度变化会来回抖动
+        function injectTipHtml(type) {
+            const dllName = `${currentGameId}.dll`;
+            if (type === '线程') {
+                return `<span class="tip-title">🧵 线程注入</span>无需劫持名，也不用改名。
+① DLL 放插件目录：${dllName}
+② 点开始游戏直接注入
+③ 不用改任何文件名`;
+            }
+            return `<span class="tip-title">🔗 劫持注入</span>劫持名：<b>version.dll</b>（游戏目录里加载）
+① DLL 放插件目录：${dllName}
+② 启动时自动复制为游戏目录 version.dll
+③ 游戏加载后注入完成`;
+        }
+
+        function updateInjectTip(type) {
+            injectDialogTip.innerHTML = injectTipHtml(type);
+        }
 
         function showInjectDialog() {
             const g = GAMES.find(x => x.id === currentGameId);
@@ -282,6 +303,7 @@
             injectDialogSub.textContent = `${g.name} · 当前：${cur}`;
             injectDialog.querySelectorAll('.inject-dialog-option').forEach(o =>
                 o.classList.toggle('active', o.dataset.inject === cur));
+            updateInjectTip(cur);
             injectDialog.classList.add('show');
         }
         function hideInjectDialog() {
@@ -300,6 +322,8 @@
                 console.log('send:', { cmd: 'componentEvent', action: 'selectInjectType', injectType: opt.dataset.inject === '线程' ? 'thread' : 'hijack', game: currentGameId });
                 sendToCpp({ cmd: 'componentEvent', action: 'selectInjectType', injectType: opt.dataset.inject === '线程' ? 'thread' : 'hijack', game: currentGameId });
             });
+            // 悬停预览对应说明
+            opt.addEventListener('mouseenter', () => updateInjectTip(opt.dataset.inject));
         });
         injectDialog.addEventListener('click', (e) => {
             if (e.target === injectDialog) hideInjectDialog();
