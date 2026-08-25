@@ -268,9 +268,6 @@
                     <span>注入类型</span>
                     <span style="color:#87ceeb;">${cur} ›</span>
                 </div>
-                <div class="popup-menu-item" data-action="pluginDir">
-                    <span>插件目录</span>
-                </div>
                 <div class="popup-menu-item" data-action="pluginSettings">
                     <span>插件设置</span>
                 </div>
@@ -281,11 +278,6 @@
             popupMenu.querySelector('.popup-menu-item[data-action="inject"]').addEventListener('click', (e) => {
                 e.stopPropagation();
                 showInjectDialog();
-            });
-            popupMenu.querySelector('.popup-menu-item[data-action="pluginDir"]').addEventListener('click', (e) => {
-                e.stopPropagation();
-                popupMenu.style.display = 'none';
-                sendToCpp({ cmd: 'openPluginDir', game: currentGameId });
             });
             popupMenu.querySelector('.popup-menu-item[data-action="pluginSettings"]').addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -462,7 +454,7 @@ ${dllRow}
 
         function showPluginDialog() {
             const g = GAMES.find(x => x.id === currentGameId);
-            pluginDialogSub.textContent = g ? `${g.name} · 插件开关（关 = 不注入）` : '插件开关（关 = 不注入）';
+            pluginDialogSub.textContent = g ? `${g.name} · 插件管理` : '插件管理';
             pluginList.innerHTML = '<div class="plugin-empty">加载插件列表…</div>';
             pluginDialog.classList.add('show');
             // 请求 C++ 下发插件列表（后端返回 pluginList，开关为 false 则不注入）
