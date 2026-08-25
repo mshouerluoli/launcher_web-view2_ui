@@ -107,6 +107,22 @@
         </div>
     </div>
 
+    <!-- 插件设置弹窗 -->
+    <div class="inject-dialog-overlay" id="pluginDialog">
+        <div class="inject-dialog" style="width:340px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
+                <div class="inject-dialog-title" style="text-align:left;margin-bottom:0;">插件设置</div>
+                <button class="add-btn" id="pluginDialogClose" style="padding:4px 10px;font-size:12px;flex:0 0 auto;white-space:nowrap;">✕</button>
+            </div>
+            <div class="inject-dialog-sub" id="pluginDialogSub" style="text-align:left;margin-bottom:12px;"></div>
+            <div id="pluginList" style="max-height:240px;overflow-y:auto;"></div>
+            <div style="display:flex;gap:8px;margin-top:14px;">
+                <button class="add-btn" id="pluginOpenDir">打开插件目录</button>
+                <button class="add-btn add-btn-primary" id="pluginDialogDone">完成</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 弹窗菜单容器（JS 填充） -->
     <div class="popup-menu" id="popupMenu" style="display:none;"></div>
 

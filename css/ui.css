@@ -626,6 +626,78 @@
             filter: brightness(1.08);
         }
 
+        /* ===== 插件设置弹窗 ===== */
+        .plugin-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.04);
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 13px;
+        }
+        .plugin-row:last-child {
+            margin-bottom: 0;
+        }
+        .plugin-name {
+            font-family: Consolas, Monaco, monospace;
+            font-size: 12px;
+            word-break: break-all;
+            flex: 1;
+            min-width: 0;
+            color: #cdd9f0;
+        }
+        .plugin-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 22px;
+            flex: none;
+            cursor: pointer;
+        }
+        .plugin-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .switch-slider {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 22px;
+            transition: all 0.2s;
+        }
+        .switch-slider::before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 3px;
+            top: 2px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        .plugin-switch input:checked + .switch-slider {
+            background: linear-gradient(135deg, #87ceeb, #6495ed);
+            border-color: rgba(135, 206, 235, 0.5);
+        }
+        .plugin-switch input:checked + .switch-slider::before {
+            transform: translateX(18px);
+        }
+        .plugin-empty {
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 12px;
+            text-align: center;
+            padding: 22px 0;
+            line-height: 1.7;
+        }
+
         /* ===== 右侧内容区 ===== */
         .main-panel {
             flex: 1;

@@ -137,6 +137,11 @@
                         nameInput.select();
                         document.getElementById('addProcess').value = base + '.exe';
                     }
+                } else if (d.cmd === 'pluginList') {
+                    // 后端下发插件列表（含每个插件的开关状态）
+                    if (d.game && d.game === currentGameId) {
+                        renderPluginList(Array.isArray(d.plugins) ? d.plugins : []);
+                    }
                 }
             });
             // 页面加载完成 → 请求游戏列表
@@ -266,6 +271,9 @@
                 <div class="popup-menu-item" data-action="pluginDir">
                     <span>插件目录</span>
                 </div>
+                <div class="popup-menu-item" data-action="pluginSettings">
+                    <span>插件设置</span>
+                </div>
                 <div class="popup-menu-sep"></div>
                 <div class="popup-menu-item" data-action="设置"><span>设置</span></div>
             `;
@@ -278,6 +286,11 @@
                 e.stopPropagation();
                 popupMenu.style.display = 'none';
                 sendToCpp({ cmd: 'openPluginDir', game: currentGameId });
+            });
+            popupMenu.querySelector('.popup-menu-item[data-action="pluginSettings"]').addEventListener('click', (e) => {
+                e.stopPropagation();
+                popupMenu.style.display = 'none';
+                showPluginDialog();
             });
             popupMenu.querySelector('.popup-menu-item[data-action="设置"]').addEventListener('click', () => {
                 popupMenu.style.display = 'none';
@@ -293,18 +306,13 @@
         const injectDialogTip = document.getElementById('injectDialogTip');
         let pendingInject = '劫持'; // 弹窗内待保存的选中类型（点保存才写入 injectTypes）
 
-        // 注入类型提示（劫持需要说明劫持名/改名，线程不用）
-        // 注意：两种提示必须等行数，否则悬停切换时弹窗高度变化会来回抖动
+        // 注入类型提示（线程：DLL 放插件目录即可、任意文件名；劫持：仍需命名为 <id>.dll）
         function injectTipHtml(type) {
+            if (type === '线程') {
+                return `<span class="tip-title">🧵 线程注入</span>把 DLL 放进插件目录即可`;
+            }
             const dllName = `${currentGameId}.dll`;
             const dllRow = `<span class="dll-row"><code class="dll-name">${dllName}</code><button class="copy-dll" data-dll="${dllName}" type="button">复制</button></span>`;
-            if (type === '线程') {
-                return `<span class="tip-title">🧵 线程注入</span>无劫持名（不用 version.dll）
-① DLL 放插件目录，命名为
-${dllRow}
-② 点开始游戏，直接注入
-③ 不用复制成 version.dll`;
-            }
             return `<span class="tip-title">🔗 劫持注入</span>劫持名：<b>version.dll</b>（游戏目录里加载）
 ① DLL 放插件目录，命名为
 ${dllRow}
@@ -385,6 +393,101 @@ ${dllRow}
         });
         injectDialog.addEventListener('click', (e) => {
             if (e.target === injectDialog) hideInjectDialog();
+        });
+
+        // ==================== 插件设置弹窗 ====================
+        const pluginDialog = document.getElementById('pluginDialog');
+        const pluginDialogSub = document.getElementById('pluginDialogSub');
+        const pluginList = document.getElementById('pluginList');
+        // 每个游戏每个插件的开关状态缓存（localStorage 持久化；权威值由 C++ 下发/存储）
+        let pluginStatus = {};
+        try {
+            const s = readSettings();
+            pluginStatus = (s.plugins && typeof s.plugins === 'object') ? s.plugins : {};
+        } catch (e) { pluginStatus = {}; }
+
+        function savePluginStatus() {
+            const s = readSettings();
+            s.plugins = pluginStatus;
+            writeSettings(s);
+        }
+        function getPluginEnabled(gameId, name, fallback) {
+            const g = pluginStatus[gameId];
+            if (g && typeof g[name] === 'boolean') return g[name];
+            return fallback !== undefined ? fallback : true;
+        }
+        function setPluginEnabled(gameId, name, enabled) {
+            if (!pluginStatus[gameId]) pluginStatus[gameId] = {};
+            pluginStatus[gameId][name] = enabled;
+            savePluginStatus();
+        }
+
+        function renderPluginList(plugins) {
+            const gid = currentGameId;
+            pluginList.innerHTML = '';
+            if (!plugins || !plugins.length) {
+                pluginList.innerHTML = '<div class="plugin-empty">暂无插件<br>点「打开插件目录」放入 .dll 后再回来管理</div>';
+                return;
+            }
+            plugins.forEach(p => {
+                const name = (p && p.name) ? p.name : String(p);
+                const enabled = (p && typeof p.enabled === 'boolean') ? p.enabled : getPluginEnabled(gid, name, true);
+                const row = document.createElement('div');
+                row.className = 'plugin-row';
+                const nameEl = document.createElement('span');
+                nameEl.className = 'plugin-name';
+                nameEl.textContent = name;
+                nameEl.title = name;
+                const label = document.createElement('label');
+                label.className = 'plugin-switch';
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.className = 'plugin-toggle';
+                input.checked = enabled;
+                const slider = document.createElement('span');
+                slider.className = 'switch-slider';
+                label.appendChild(input);
+                label.appendChild(slider);
+                input.addEventListener('change', (e) => {
+                    const on = e.target.checked;
+                    setPluginEnabled(gid, name, on);
+                    sendToCpp({ cmd: 'setPluginEnabled', game: gid, plugin: name, enabled: on });
+                    console.log('send:', { cmd: 'setPluginEnabled', game: gid, plugin: name, enabled: on });
+                });
+                row.appendChild(nameEl);
+                row.appendChild(label);
+                pluginList.appendChild(row);
+            });
+        }
+
+        let pluginListTimer = null;
+        function showPluginDialog() {
+            const g = GAMES.find(x => x.id === currentGameId);
+            pluginDialogSub.textContent = g ? `${g.name} · 插件开关（关 = 不注入）` : '插件开关（关 = 不注入）';
+            pluginList.innerHTML = '<div class="plugin-empty">加载插件列表…</div>';
+            pluginDialog.classList.add('show');
+            // 请求 C++ 下发插件列表（后端接入后返回 pluginList）
+            sendToCpp({ cmd: 'getPlugins', game: currentGameId });
+            console.log('send:', { cmd: 'getPlugins', game: currentGameId });
+            // 后端没响应则超时回退到空态（避免一直停在“加载中”）
+            if (pluginListTimer) clearTimeout(pluginListTimer);
+            pluginListTimer = setTimeout(() => {
+                if (!pluginList.querySelector('.plugin-row')) {
+                    pluginList.innerHTML = '<div class="plugin-empty">暂无插件<br>点「打开插件目录」放入 .dll 后再回来管理</div>';
+                }
+            }, 1500);
+        }
+        function hidePluginDialog() { pluginDialog.classList.remove('show'); }
+
+        document.getElementById('pluginDialogClose').addEventListener('click', hidePluginDialog);
+        document.getElementById('pluginDialogDone').addEventListener('click', hidePluginDialog);
+        document.getElementById('pluginOpenDir').addEventListener('click', (e) => {
+            e.stopPropagation();
+            hidePluginDialog();
+            sendToCpp({ cmd: 'openPluginDir', game: currentGameId });
+        });
+        pluginDialog.addEventListener('click', (e) => {
+            if (e.target === pluginDialog) hidePluginDialog();
         });
 
 
