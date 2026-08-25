@@ -133,10 +133,8 @@
                         const p = d.path.replace(/\\/g, '/');
                         const base = p.split('/').pop().replace(/\.exe$/i, '');
                         const nameInput = document.getElementById('addName');
-                        if (!nameInput.value.trim()) {
-                            nameInput.value = base;
-                            nameInput.select();
-                        }
+                        nameInput.value = base;
+                        nameInput.select();
                         document.getElementById('addProcess').value = base + '.exe';
                     }
                 }
@@ -587,7 +585,7 @@ ${dllRow}
             if (!f) return;
             const exeName = f.name;
             const base = exeName.replace(/\.exe$/i, '');
-            if (!addName.value.trim()) addName.value = base; // 没手填名字就用 exe 名
+            addName.value = base; // 每次选择都同步成 exe 名
             addProcess.value = exeName;
             addPath.value = f.name; // demo 拿不到完整路径，正式版为完整绝对路径
             console.log('send:', { cmd: 'selectGameFile', fileName: exeName, note: '正式版由 C++ 弹文件选择器返回完整路径' });
