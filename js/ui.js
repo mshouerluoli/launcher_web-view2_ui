@@ -286,7 +286,6 @@
             });
             popupMenu.querySelector('.popup-menu-item[data-action="设置"]').addEventListener('click', () => {
                 popupMenu.style.display = 'none';
-                console.log('send:', { cmd: 'componentEvent', action: 'click', component: 'settingsBtn', game: currentGameId });
                 sendToCpp({ cmd: 'componentEvent', action: 'click', component: 'settingsBtn', game: currentGameId });
                 showSettingsDialog('game'); // 当前游戏的设置（背景）
             });
@@ -380,7 +379,6 @@ ${dllRow}
             const tab = document.querySelector(`.game-tab[data-id="${currentGameId}"]`);
             tab.querySelectorAll('.inject-option').forEach(o =>
                 o.classList.toggle('active', o.dataset.inject === chosen));
-            console.log('send:', { cmd: 'componentEvent', action: 'selectInjectType', injectType: chosen === '线程' ? 'thread' : 'hijack', game: currentGameId });
             sendToCpp({ cmd: 'componentEvent', action: 'selectInjectType', injectType: chosen === '线程' ? 'thread' : 'hijack', game: currentGameId });
         });
         injectDialog.addEventListener('click', (e) => {
@@ -492,7 +490,6 @@ ${dllRow}
 
         menuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            console.log('send:', { cmd: 'componentEvent', action: 'click', component: 'menuBtn' });
             sendToCpp({ cmd: 'componentEvent', action: 'click', component: 'menuBtn' });
             if (popupMenu.style.display === 'block') hidePopupMenu();
             else showPopupMenu();
@@ -533,16 +530,6 @@ ${dllRow}
             startBtn.innerHTML = '<svg class="spin-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="40 22" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg> 启动中......';
             updateStartBtnState();
 
-            console.log('send:', {
-                cmd: 'componentEvent',
-                action: 'click',
-                component: 'startGame',
-                game: g.id,
-                process: g.process.replace(/\.exe$/i, ''),
-                path: g.path,
-                injectType: injectTypes[currentGameId] === '线程' ? 'thread' : 'hijack',
-                launchParams: getCfg('game').launchParams || g.launchParams || ''
-            });
             sendToCpp({
                 cmd: 'componentEvent',
                 action: 'click',
@@ -900,7 +887,6 @@ ${dllRow}
 
         // 右上角齿轮（保持原样式）→ 全局设置
         document.getElementById('设置按钮').addEventListener('click', () => {
-            console.log('send:', { cmd: 'componentEvent', action: 'click', component: 'settingsBtn' });
             sendToCpp({ cmd: 'componentEvent', action: 'click', component: 'settingsBtn' });
             showSettingsDialog('global');
         });
