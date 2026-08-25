@@ -697,6 +697,14 @@
             padding: 22px 0;
             line-height: 1.7;
         }
+        /* 插件列表滚动条（同游戏列表样式） */
+        #pluginList::-webkit-scrollbar {
+            width: 3px;
+        }
+        #pluginList::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 2px;
+        }
 
         /* ===== 右侧内容区 ===== */
         .main-panel {

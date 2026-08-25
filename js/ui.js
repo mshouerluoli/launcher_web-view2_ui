@@ -460,22 +460,14 @@ ${dllRow}
             });
         }
 
-        let pluginListTimer = null;
         function showPluginDialog() {
             const g = GAMES.find(x => x.id === currentGameId);
             pluginDialogSub.textContent = g ? `${g.name} · 插件开关（关 = 不注入）` : '插件开关（关 = 不注入）';
             pluginList.innerHTML = '<div class="plugin-empty">加载插件列表…</div>';
             pluginDialog.classList.add('show');
-            // 请求 C++ 下发插件列表（后端接入后返回 pluginList）
+            // 请求 C++ 下发插件列表（后端返回 pluginList，开关为 false 则不注入）
             sendToCpp({ cmd: 'getPlugins', game: currentGameId });
             console.log('send:', { cmd: 'getPlugins', game: currentGameId });
-            // 后端没响应则超时回退到空态（避免一直停在“加载中”）
-            if (pluginListTimer) clearTimeout(pluginListTimer);
-            pluginListTimer = setTimeout(() => {
-                if (!pluginList.querySelector('.plugin-row')) {
-                    pluginList.innerHTML = '<div class="plugin-empty">暂无插件<br>点「打开插件目录」放入 .dll 后再回来管理</div>';
-                }
-            }, 1500);
         }
         function hidePluginDialog() { pluginDialog.classList.remove('show'); }
 
