@@ -278,6 +278,15 @@
             background: linear-gradient(135deg, #87ceeb, #6495ed);
             filter: brightness(1.08);
         }
+        /* 添加游戏：路径重复时的警示态（红底，醒目） */
+        .add-btn-primary.is-dup {
+            background: linear-gradient(135deg, #ff5c5c, #e04437);
+            border-color: rgba(255, 92, 92, 0.6);
+        }
+        .add-btn-primary.is-dup:hover {
+            background: linear-gradient(135deg, #ff5c5c, #e04437);
+            filter: brightness(1.08);
+        }
         .add-btn.active {
             border-color: #ffd700;
             background: rgba(255, 215, 0, 0.15);

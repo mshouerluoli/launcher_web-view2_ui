@@ -527,6 +527,12 @@ ${dllRow}
         const addPath = document.getElementById('addPath');
         const addGameBtn = document.getElementById('addGameBtn');
         const filePicker = document.getElementById('filePicker');
+        const addConfirmBtn = document.getElementById('addConfirm');
+        // 添加弹窗确定按钮状态：dup=true 时标题改「路径已存在」且底色变红（醒目提示）
+        function setAddConfirmState(dup) {
+            addConfirmBtn.textContent = dup ? '路径已存在' : '确定添加';
+            addConfirmBtn.classList.toggle('is-dup', dup);
+        }
 
         // 「+」按钮也用自定义悬浮提示
         addGameBtn.addEventListener('mouseenter', () => showGameTooltip(addGameBtn, '添加游戏'));
@@ -536,6 +542,7 @@ ${dllRow}
             addName.value = '';
             addProcess.value = '';
             addPath.value = '';
+            setAddConfirmState(false); // 打开弹窗时还原确定按钮
             addGameDialog.classList.add('show');
             setTimeout(() => addName.focus(), 60);
         });
@@ -550,6 +557,20 @@ ${dllRow}
             let proc = addProcess.value.trim();
             if (!name || !proc) return;
             if (!/\.exe$/i.test(proc)) proc += '.exe'; // 自动补 .exe
+
+            // 路径去重：已有游戏使用同一路径则拒绝添加，并把确定按钮标题改成提示，点 addBrowse 还原
+            const newPath = addPath.value.trim();
+            if (newPath) {
+                const dupPath = GAMES.some(g => {
+                    const gp = (g.path || '').trim();
+                    return gp && gp.toLowerCase() === newPath.toLowerCase();
+                });
+                if (dupPath) {
+                    setAddConfirmState(true);
+                    return;
+                }
+            }
+
             const id = 'g' + Date.now();
             // 通知 C++ 添加（无 C++ 时本地模拟）
             sendToCpp({ cmd: 'addGame', game: { id, name, process: proc, path: addPath.value.trim() || '', launchParams: '' } });
@@ -574,6 +595,7 @@ ${dllRow}
         });
         // 浏览选择 exe：C++ 环境走系统文件对话框，否则本地 file input
         document.getElementById('addBrowse').addEventListener('click', () => {
+            setAddConfirmState(false); // 重新浏览时还原确定按钮
             if (isCpp) {
                 sendToCpp({ cmd: 'selectGameFile' });
             } else {
