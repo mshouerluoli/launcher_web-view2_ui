@@ -431,6 +431,22 @@
             min-width: 180px;
             z-index: 1000;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+
+            /* 菜单按钮展开动画：默认隐藏；打开向上展开，关闭向下收起 */
+            display: block;
+            opacity: 0;
+            visibility: hidden;
+            transform: scaleY(0.5);
+            transform-origin: bottom center;
+            transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0.18s;
+            pointer-events: none;
+        }
+        .popup-menu.open {
+            opacity: 1;
+            visibility: visible;
+            transform: scaleY(1);
+            transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s;
+            pointer-events: auto;
         }
         .popup-menu-title {
             padding: 8px 14px 4px;

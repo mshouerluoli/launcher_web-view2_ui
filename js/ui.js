@@ -281,11 +281,11 @@
             });
             popupMenu.querySelector('.popup-menu-item[data-action="pluginSettings"]').addEventListener('click', (e) => {
                 e.stopPropagation();
-                popupMenu.style.display = 'none';
+                hidePopupMenu();
                 showPluginDialog();
             });
             popupMenu.querySelector('.popup-menu-item[data-action="设置"]').addEventListener('click', () => {
-                popupMenu.style.display = 'none';
+                hidePopupMenu();
                 sendToCpp({ cmd: 'componentEvent', action: 'click', component: 'settingsBtn', game: currentGameId });
                 showSettingsDialog('game'); // 当前游戏的设置（背景）
             });
@@ -478,20 +478,20 @@ ${dllRow}
             const rect = menuBtn.getBoundingClientRect();
             popupMenu.style.right = '30px';
             popupMenu.style.bottom = (window.innerHeight - rect.top + 10) + 'px';
-            popupMenu.style.display = 'block';
+            popupMenu.classList.add('open');
         }
         function hidePopupMenu() {
-            popupMenu.style.display = 'none';
+            popupMenu.classList.remove('open');
         }
         // 菜单开着时刷新内容（切游戏/改注入类型后同步显示）
         function refreshPopupMenuIfOpen() {
-            if (popupMenu.style.display === 'block') renderPopupMenu();
+            if (popupMenu.classList.contains('open')) renderPopupMenu();
         }
 
         menuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             sendToCpp({ cmd: 'componentEvent', action: 'click', component: 'menuBtn' });
-            if (popupMenu.style.display === 'block') hidePopupMenu();
+            if (popupMenu.classList.contains('open')) hidePopupMenu();
             else showPopupMenu();
         });
 
