@@ -390,22 +390,24 @@
         /* 全局悬浮提示（fixed 定位，不受列表 overflow 裁剪） */
         .game-tooltip {
             position: fixed;
-            background: rgba(15, 25, 45, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.15);
             border-radius: 8px;
             padding: 6px 12px;
             font-size: 12px;
-            color: #fff;
+            color: #1e293b;
             white-space: nowrap;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.15s ease;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            transform: translateY(-50%) scale(0.3);
+            transform-origin: left center;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
             z-index: 99999;
-            transform: translateY(-50%);
         }
         .game-tooltip.show {
             opacity: 1;
+            transform: translateY(-50%) scale(1);
         }
         .game-tooltip::before {
             content: '';
@@ -415,9 +417,9 @@
             transform: translateY(-50%) rotate(45deg);
             width: 8px;
             height: 8px;
-            background: rgba(15, 25, 45, 0.95);
-            border-left: 1px solid rgba(255, 255, 255, 0.15);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            background: #ffffff;
+            border-left: 1px solid rgba(0, 0, 0, 0.15);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.15);
         }
 
         /* ===== 弹窗菜单（含注入类型） ===== */
