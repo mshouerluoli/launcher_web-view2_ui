@@ -6,7 +6,6 @@
                 id: 'ys',
                 name: '原神',
                 process: 'YuanShen.exe',          // 进程名，显示时去掉 .exe
-                icon: 'https://launcher-36j.pages.dev/icon/ys.png', // 图标 URL（没有就显示 fallback）
                 fallback: '🏔️',
                 path: 'D:\\Games\\Genshin Impact\\YuanShen.exe',
                 launchParams: ''
