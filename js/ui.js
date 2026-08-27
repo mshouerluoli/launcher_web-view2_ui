@@ -221,6 +221,12 @@
 
         // ==================== 渲染右侧 tab ====================
         const tabs = document.getElementById('gameTabs');
+        const currentGameLabel = document.getElementById('currentGameLabel');
+        // 更新左上角当前游戏名
+        function updateCurrentGameLabel() {
+            const g = GAMES.find(x => x.id === currentGameId);
+            currentGameLabel.textContent = g ? g.name : '';
+        }
         function renderTabs() {
             tabs.innerHTML = '';
             GAMES.forEach(g => {
@@ -230,6 +236,7 @@
                 // 内容暂时不需要（只留背景层）
                 tabs.appendChild(tab);
             });
+            updateCurrentGameLabel();
         }
 
         // ==================== 切换游戏 ====================
@@ -252,6 +259,7 @@
             resetStartBtn(); // 切游戏后复位启动按钮状态
             refreshBg(); // 切换游戏后加载该游戏的背景（无则全局）
             refreshPopupMenuIfOpen();
+            updateCurrentGameLabel();
         }
 
         // ==================== 弹窗菜单（注入类型在这里） ====================
