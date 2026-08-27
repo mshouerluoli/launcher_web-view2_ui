@@ -29,7 +29,7 @@
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            padding: 0 10px;
+            padding: 0 10px 0 0;
             z-index: 100000;
             flex-shrink: 0;
         }
@@ -37,9 +37,10 @@
         .title-brand {
             display: flex;
             align-items: center;
+            justify-content: center;
             margin-right: auto;
             -webkit-app-region: drag;
-            padding-left: 12px;
+            padding-left: 13px;
             align-self: flex-start;
         }
         .title-logo {

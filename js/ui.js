@@ -186,7 +186,7 @@
                 // 居中：箭头在按钮中间
                 gameTooltip.style.left = (r.left + r.width / 2) + 'px';
             }
-            gameTooltip.style.top = (r.bottom + 8) + 'px';
+            gameTooltip.style.top = (r.bottom + 14) + 'px';
             gameTooltip.classList.add('show');
         }
         // 窗口提示独立隐藏函数：不调用 hideGameTooltip，用独立定时器，避免与游戏提示冲突
