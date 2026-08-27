@@ -29,7 +29,7 @@
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            padding: 0 1px;
+            padding: 0 15px;
             z-index: 100000;
             flex-shrink: 0;
         }
@@ -50,14 +50,14 @@
             -webkit-app-region: no-drag;
             margin-top: 20px;
         }
-        .窗口控制按钮组 {
+        .window-controls {
             display: flex;
             -webkit-app-region: no-drag;
             align-items: center;
             height: 100%;
             gap: 4px;
         }
-        .窗口按钮 {
+        .window-btn {
             width: 30px;
             height: 30px;
             background: rgba(0, 0, 0, 0.3);
@@ -70,18 +70,18 @@
             color: rgba(255, 255, 255, 0.9);
             border-radius: 4px;
         }
-        .窗口按钮:hover {
+        .window-btn:hover {
             background: rgba(0, 0, 0, 0.5);
         }
-        .窗口按钮.关闭:hover {
+        .window-btn.close:hover {
             background: #e81123;
             color: white;
         }
         /* 纯 CSS 图标 */
-        .窗口按钮 {
+        .window-btn {
             font-size: 0;
         }
-        .窗口按钮.设置 i {
+        .window-btn.settings i {
             display: inline-block;
             width: 16px;
             height: 16px;
@@ -89,7 +89,7 @@
             border: 2px solid currentColor;
             border-radius: 50%;
         }
-        .窗口按钮.设置 i::after {
+        .window-btn.settings i::after {
             content: '';
             position: absolute;
             top: 50%;
@@ -100,7 +100,7 @@
             background: currentColor;
             border-radius: 50%;
         }
-        .窗口按钮.设置 i::before {
+        .window-btn.settings i::before {
             content: '';
             position: absolute;
             top: 50%;
@@ -112,28 +112,28 @@
             border-radius: 50%;
             opacity: 0.6;
         }
-        .窗口按钮.最小化 i {
+        .window-btn.minimize i {
             display: inline-block;
             width: 14px;
             height: 2px;
             background: currentColor;
             border-radius: 1px;
         }
-        .窗口按钮.最大化 i {
+        .window-btn.maximize i {
             display: inline-block;
             width: 14px;
             height: 14px;
             border: 2px solid currentColor;
             border-radius: 2px;
         }
-        .窗口按钮.关闭 i {
+        .window-btn.close i {
             display: inline-block;
             width: 14px;
             height: 14px;
             position: relative;
         }
-        .窗口按钮.关闭 i::before,
-        .窗口按钮.关闭 i::after {
+        .window-btn.close i::before,
+        .window-btn.close i::after {
             content: '';
             position: absolute;
             top: 50%;
@@ -143,10 +143,10 @@
             background: currentColor;
             border-radius: 1px;
         }
-        .窗口按钮.关闭 i::before {
+        .window-btn.close i::before {
             transform: translate(-50%, -50%) rotate(45deg);
         }
-        .窗口按钮.关闭 i::after {
+        .window-btn.close i::after {
             transform: translate(-50%, -50%) rotate(-45deg);
         }
 
@@ -420,6 +420,36 @@
             background: #ffffff;
             border-left: 1px solid rgba(0, 0, 0, 0.15);
             border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+        }
+        /* 窗口控制按钮提示：向下展开/向上收起（从小变大），箭头朝上 */
+        .game-tooltip.below {
+            transform: translateX(-50%) scale(0.3);
+            transform-origin: top center;
+        }
+        .game-tooltip.below.show {
+            transform: translateX(-50%) scale(1);
+        }
+        .game-tooltip.below::before {
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            border-left: 1px solid rgba(0, 0, 0, 0.15);
+            border-top: 1px solid rgba(0, 0, 0, 0.15);
+            border-right: none;
+            border-bottom: none;
+        }
+        /* 靠右按钮（如关闭）：箭头在右上角，整体左移，避免超出窗口右缘 */
+        .game-tooltip.below.below-right {
+            transform: scale(0.3);
+            transform-origin: top right;
+        }
+        .game-tooltip.below.below-right.show {
+            transform: scale(1);
+        }
+        .game-tooltip.below.below-right::before {
+            left: auto;
+            right: 4px;
+            transform: translateX(0) rotate(45deg);
         }
 
         /* ===== 弹窗菜单（含注入类型） ===== */

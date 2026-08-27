@@ -151,9 +151,12 @@
         const iconList = document.getElementById('gameIconList');
         const gameTooltip = document.getElementById('gameTooltip');
         let tooltipTimer = null;
+        let winTooltipTimer = null;
 
         function showGameTooltip(btn, text) {
             clearTimeout(tooltipTimer);
+            clearTimeout(winTooltipTimer);
+            gameTooltip.classList.remove('below', 'below-right');
             gameTooltip.textContent = text;
             const r = btn.getBoundingClientRect();
             gameTooltip.style.left = (r.right + 14) + 'px';
@@ -161,8 +164,52 @@
             gameTooltip.classList.add('show');
         }
         function hideGameTooltip() {
-            tooltipTimer = setTimeout(() => gameTooltip.classList.remove('show'), 120);
+            clearTimeout(tooltipTimer);
+            tooltipTimer = setTimeout(() => {
+                gameTooltip.classList.remove('show');
+                // 等淡出完全结束再移除 below，避免箭头瞬移
+                setTimeout(() => gameTooltip.classList.remove('below'), 300);
+            }, 120);
         }
+        // 窗口控制按钮提示：同款样式，向下展开/向上收起（从小变大），箭头朝上
+        function showWinTooltip(btn, text, align) {
+            clearTimeout(tooltipTimer);
+            clearTimeout(winTooltipTimer);
+            gameTooltip.classList.add('below');
+            gameTooltip.classList.toggle('below-right', align === 'right');
+            gameTooltip.textContent = text;
+            const r = btn.getBoundingClientRect();
+            if (align === 'right') {
+                // 靠右：整体左移，右缘对齐按钮右缘，箭头在右上角指向按钮
+                gameTooltip.style.left = (r.right - gameTooltip.offsetWidth - 4) + 'px';
+            } else {
+                // 居中：箭头在按钮中间
+                gameTooltip.style.left = (r.left + r.width / 2) + 'px';
+            }
+            gameTooltip.style.top = (r.bottom + 8) + 'px';
+            gameTooltip.classList.add('show');
+        }
+        // 窗口提示独立隐藏函数：不调用 hideGameTooltip，用独立定时器，避免与游戏提示冲突
+        // 收起只去 .show、保留 .below，箭头全程朝上不瞬移；.below 由下次 show 时自动复位
+        function hideWinTooltip() {
+            clearTimeout(winTooltipTimer);
+            winTooltipTimer = setTimeout(() => {
+                gameTooltip.classList.remove('show');
+            }, 120);
+        }
+        // 窗口控制按钮 hover 提示（中文，独立隐藏函数）
+        [
+            ['settingsBtn', '设置', 'center'],
+            ['minimizeBtn', '最小化', 'center'],
+            ['maximizeBtn', '最大化', 'center'],
+            ['closeBtn', '关闭', 'right'],
+        ].forEach(([id, label, align]) => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('mouseenter', () => showWinTooltip(el, label, align));
+                el.addEventListener('mouseleave', hideWinTooltip);
+            }
+        });
 
         function renderGameList() {
             iconList.innerHTML = '';
@@ -893,30 +940,30 @@ ${dllRow}
         });
 
         // 右上角齿轮（保持原样式）→ 全局设置
-        document.getElementById('设置按钮').addEventListener('click', () => {
+        document.getElementById('settingsBtn').addEventListener('click', () => {
             sendToCpp({ cmd: 'componentEvent', action: 'click', component: 'settingsBtn' });
             showSettingsDialog('global');
         });
 
-        // ==================== 窗口按钮（对接 C++） ====================
-        ['最小化按钮', '最大化按钮', '关闭按钮'].forEach(id => {
+        // ==================== Window buttons (to C++) ====================
+        ['minimizeBtn', 'maximizeBtn', 'closeBtn'].forEach(id => {
             document.getElementById(id).addEventListener('click', () => {
-                const action = id === '最小化按钮' ? 'minimize' : (id === '最大化按钮' ? 'maximize' : 'close');
+                const action = id === 'minimizeBtn' ? 'minimize' : (id === 'maximizeBtn' ? 'maximize' : 'close');
                 console.log('windowControl:', action);
                 sendToCpp({ cmd: 'windowControl', action });
             });
         });
 
         // ==================== 顶栏拖拽移动窗口（同原版：JS 发 move 消息；app-region 兜底） ====================
-        const 标题栏 = document.getElementById('标题栏');
-        if (标题栏) {
-            标题栏.addEventListener('mousedown', (e) => {
+        const topBar = document.getElementById('topBar');
+        if (topBar) {
+            topBar.addEventListener('mousedown', (e) => {
                 if (e.button !== 0) return; // 左键
                 if (e.target.closest('button')) return; // 按钮不触发拖拽
                 sendToCpp({ cmd: 'windowControl', action: 'move' });
                 e.preventDefault();
             });
-            标题栏.addEventListener('dblclick', (e) => {
+            topBar.addEventListener('dblclick', (e) => {
                 if (e.target.closest('button')) return;
                 sendToCpp({ cmd: 'windowControl', action: 'maximize' }); // C++ maximize 自带切换
                 e.preventDefault();
